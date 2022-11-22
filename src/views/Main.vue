@@ -4,10 +4,7 @@
       保护水位线查询系统
     </div>
     <div class="layer-select-box">
-      <el-checkbox @change="checked => changeRiverLayer(checked,item.label)" v-for="item in riverLayerList"
-                   :label="item.name"
-                   size="large"/>
-      <el-checkbox @change="checked => changeOtherLayer(checked,item.label)" v-for="item in otherLayerList"
+      <el-checkbox @change="checked => changeLayer(checked,item.label)" v-for="item in riverLayerList"
                    :label="item.name"
                    size="large"/>
     </div>
@@ -18,6 +15,28 @@
           :props="props"
           @change="areaChange"
       />
+    </div>
+    <div class="legend-box">
+      <div class="legend-item">
+        <div class="line2">——</div>
+        <div>两年管理线</div>
+      </div>
+      <div class="legend-item">
+        <div class="line3">——</div>
+        <div>三年管理线</div>
+      </div>
+      <div class="legend-item">
+        <div class="line5">——</div>
+        <div>五年管理线</div>
+      </div>
+      <div class="legend-item">
+        <div class="line8">——</div>
+        <div>八年管理线</div>
+      </div>
+      <div class="legend-item">
+        <div class="line">——</div>
+        <div>管理线</div>
+      </div>
     </div>
   </div>
 
@@ -49,7 +68,7 @@ export default {
         },
         {
           "name": "黄河",
-          "label": "hl"
+          "label": "hh"
         },
         {
           "name": "嘉陵江",
@@ -83,9 +102,6 @@ export default {
           "name": "长江（金沙江）",
           "label": "cj"
         },
-
-      ],
-      otherLayerList: [
         {
           "name": "行政区划",
           "label": "xzqh"
@@ -93,6 +109,10 @@ export default {
         {
           "name": "流域",
           "label": "ly"
+        },
+        {
+          "name": "管理范围",
+          "label": "glfw"
         }
       ],
       value: "",
@@ -374,7 +394,7 @@ export default {
 
     },
     imageryProvider(layers) {
-      let url = "http://localhost:8080/geoserver/sicau/wms"
+      let url = "http://gis.sicau.edu.cn/geoserver/sicau/wms"
 
       let parameters = {
         service: 'WMS',
@@ -384,27 +404,7 @@ export default {
 
       return new Cesium.WebMapServiceImageryProvider({url: url, layers: layers, parameters: parameters});
     },
-    changeRiverLayer(checked, name) {
-      console.log(name, checked)
-      if (checked) {
-        let yearList = ['2', '3', '5', '8']
-        for (let year of yearList) {
-          let layerName = name + year
-          let imgLayer = this.viewer.imageryLayers.addImageryProvider(this.imageryProvider(layerName));
-          this.cesiumLayerList.push({layerName, imgLayer})
-        }
-      }
-
-      if (!checked) {
-        for (let item of this.cesiumLayerList) {
-          if (item.layerName.includes(name)) {
-            this.viewer.imageryLayers.remove(item.imgLayer)
-          }
-        }
-      }
-    },
-
-    changeOtherLayer(checked, layerName) {
+    changeLayer(checked, layerName) {
       if (checked) {
         let imgLayer = this.viewer.imageryLayers.addImageryProvider(this.imageryProvider(layerName));
         this.cesiumLayerList.push({layerName, imgLayer})
@@ -457,11 +457,11 @@ export default {
 .title-box {
   position: fixed;
   top: 0;
+  right: 0;
   z-index: 999;
-  font-size: 48px;
+  font-size: 24px;
   color: white;
   text-align: center;
-  width: 100%
 }
 
 .area-select-box {
@@ -474,6 +474,18 @@ export default {
   text-align: center;
 }
 
+.legend-box {
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 999;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  background-color: white;
+  width: 150px;
+}
+
 .layer-select-box {
   position: fixed;
   z-index: 999;
@@ -483,5 +495,39 @@ export default {
   flex-direction: column;
   background-color: white;
   padding-left: 10px;
+  width: 150px;
+}
+
+.legend-item {
+
+  display: flex;
+  flex-direction: row;
+  color: black;
+
+}
+
+.line2 {
+  color: #1fd944;
+  font-weight: bold;
+}
+
+.line3 {
+  color: #a653dd;
+  font-weight: bold;
+}
+
+.line5 {
+  color: #cdd034;
+  font-weight: bold;
+}
+
+.line8 {
+  color: #e46a80;
+  font-weight: bold;
+}
+
+.line {
+  color: #ff83f9;
+  font-weight: bold;
 }
 </style>
