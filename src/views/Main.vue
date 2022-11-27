@@ -6,15 +6,15 @@
     <div class="layer-select-box">
       <el-checkbox @change="checked => changeLayer(checked,item.label)" v-for="item in riverLayerList"
                    :label="item.name"
-                   size="large"/>
+      />
     </div>
     <div class="area-select-box">
-      <el-cascader
-          v-model="value"
-          :options="options"
-          :props="props"
-          @change="areaChange"
-      />
+      <!--      <el-cascader-->
+      <!--          v-model="value"-->
+      <!--          :options="options"-->
+      <!--          :props="props"-->
+      <!--          @change="areaChange"-->
+      <!--      />-->
     </div>
     <div class="legend-box">
       <div class="legend-item">
@@ -35,9 +35,12 @@
       </div>
       <div class="legend-item">
         <div class="line">——</div>
-        <div>管理线</div>
+        <div>管理范围线</div>
       </div>
     </div>
+    <el-dialog v-model="imageDialog" width="30%" @close="close">
+      <el-image :src="imageUrl" fit="fill"/>
+    </el-dialog>
   </div>
 
 </template>
@@ -81,6 +84,10 @@ export default {
         {
           "name": "岷江",
           "label": "mj"
+        },
+        {
+          "name": "琼江",
+          "label": "qiongjiang"
         },
         {
           "name": "青衣江",
@@ -387,22 +394,50 @@ export default {
       props: "",
       viewer: null,
       cesiumLayerList: [],
+      imageDialog: false,
+      imageUrl: "",
+
     }
   },
   methods: {
     areaChange() {
 
     },
+    addPoint() {
+      this.viewer.dataSources.add(
+          Cesium.GeoJsonDataSource.load(
+              "http://gis.sicau.edu.cn/geojson/camera.geojson",
+              {
+                markerSize: 50,
+                markerSymbol: "camera",
+                markerColor: Cesium.Color.HOTPINK,
+                clampToGround: true
+              }
+          )
+      );
+    },
     imageryProvider(layers) {
       let url = "http://gis.sicau.edu.cn/geoserver/sicau/wms"
-
       let parameters = {
         service: 'WMS',
         format: 'image/png',
         transparent: true,
       }
-
       return new Cesium.WebMapServiceImageryProvider({url: url, layers: layers, parameters: parameters});
+    },
+    addEvent() {
+      this.viewer.selectedEntityChanged.addEventListener((entity) => {
+        console.log(entity);
+        if (entity.name !== "") {
+          this.imageDialog = true
+          this.imageUrl = "http://gis.sicau.edu.cn/image/" + entity.name
+        }
+        return false
+      });
+    },
+    close() {
+      this.imageDialog = false
+      this.viewer.selectedEntity = {name: ""}
     },
     changeLayer(checked, layerName) {
       if (checked) {
@@ -417,6 +452,7 @@ export default {
         }
       }
     },
+
   },
 
   mounted() {
@@ -443,6 +479,8 @@ export default {
         pitch: -1.5686521559334161,
       }
     });
+    this.addPoint()
+    this.addEvent()
 
   }
 }
@@ -457,7 +495,7 @@ export default {
 .title-box {
   position: fixed;
   top: 0;
-  right: 0;
+  right: 10px;
   z-index: 999;
   font-size: 24px;
   color: white;
