@@ -19,26 +19,27 @@
     <div class="legend-box">
       <div class="legend-item">
         <div class="line2">——</div>
-        <div>两年管理线</div>
+        <div>2年一遇水位线</div>
       </div>
       <div class="legend-item">
         <div class="line3">——</div>
-        <div>三年管理线</div>
+        <div>3年一遇水位线</div>
       </div>
       <div class="legend-item">
         <div class="line5">——</div>
-        <div>五年管理线</div>
+        <div>5年一遇水位线</div>
       </div>
       <div class="legend-item">
         <div class="line8">——</div>
-        <div>八年管理线</div>
+        <div>8年一遇水位线</div>
       </div>
       <div class="legend-item">
         <div class="line">——</div>
         <div>管理范围线</div>
       </div>
     </div>
-    <el-dialog v-model="imageDialog" width="30%" @close="close">
+    <el-dialog v-model="imageDialog" id="dialog11" custom-class="white-text" style="color: white" title="现场照片"
+               width="30%" @close="close">
       <el-image :src="imageUrl" fit="fill"/>
     </el-dialog>
   </div>
@@ -111,7 +112,7 @@ export default {
         },
         {
           "name": "行政区划",
-          "label": "xzqh"
+          "label": "city"
         },
         {
           "name": "流域",
@@ -396,7 +397,6 @@ export default {
       cesiumLayerList: [],
       imageDialog: false,
       imageUrl: "",
-
     }
   },
   methods: {
@@ -408,7 +408,7 @@ export default {
           Cesium.GeoJsonDataSource.load(
               "http://gis.sicau.edu.cn/geojson/camera.geojson",
               {
-                markerSize: 50,
+                markerSize: 30,
                 markerSymbol: "camera",
                 markerColor: Cesium.Color.HOTPINK,
                 clampToGround: true
@@ -428,16 +428,15 @@ export default {
     addEvent() {
       this.viewer.selectedEntityChanged.addEventListener((entity) => {
         console.log(entity);
-        if (entity.name !== "") {
+        if (entity && entity.name && entity.name !== "") {
           this.imageDialog = true
           this.imageUrl = "http://gis.sicau.edu.cn/image/" + entity.name
         }
-        return false
       });
     },
     close() {
       this.imageDialog = false
-      this.viewer.selectedEntity = {name: ""}
+      this.viewer.selectedEntity = undefined
     },
     changeLayer(checked, layerName) {
       if (checked) {
@@ -515,13 +514,13 @@ export default {
 .legend-box {
   position: fixed;
   bottom: 10px;
-  left: 10px;
+  right: 10px;
   z-index: 999;
   color: white;
   text-align: center;
   padding: 10px;
   background-color: white;
-  width: 150px;
+  font-size: 38px;
 }
 
 .layer-select-box {
@@ -537,11 +536,9 @@ export default {
 }
 
 .legend-item {
-
   display: flex;
   flex-direction: row;
   color: black;
-
 }
 
 .line2 {
@@ -567,5 +564,9 @@ export default {
 .line {
   color: #ff83f9;
   font-weight: bold;
+}
+
+.white-text {
+  color: white !important;
 }
 </style>
